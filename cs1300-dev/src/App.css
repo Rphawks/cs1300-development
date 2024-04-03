@@ -68,6 +68,7 @@ body {
   position: absolute;
   bottom: 28px;
   right: 28px;
+  cursor: pointer;
 }
 
 .select {
@@ -92,4 +93,78 @@ body {
 
 .slider-container {
   padding-left: 20px;
+  padding-top: 14px;
+  display: flex;
+}
+
+.slider-text {
+  color: white;
+  padding-right: 28px;
+  padding-top: 2px;
+}
+
+.fs-container {
+  display: flex;
+  gap: 12px;
+}
+
+.global-container {
+  display: flex;
+}
+
+.cart {
+  background-color: #c3b299;
+  width: 28vw;
+  flex-shrink: 0;
+  border-radius: 16px;
+  margin-top: 88px;
+  padding: 2rem;
+}
+
+.cart-card-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.cart-card {
+  border-radius: 16px;
+  width: 31rem;
+  height: 5.5rem;
+  background-color: #815355;
+  padding: 1rem;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  position: relative;
+  display: flex;
+}
+
+.cart-card-title {
+  font-size: 24px;
+  color: #ffffff;
+  margin-top: 16px;
+  margin-left: 8px;
+  margin-bottom: 0;
+  text-wrap: pretty;
+  width: 20rem;
+  margin-left: 12px;
+  line-height: 28px;
+}
+
+.cart-card-text {
+  font-size: 12px;
+  color: #ffffff;
+  margin-top: 0;
+  margin-left: 8px;
+  text-wrap: pretty;
+  width: 280px;
+  margin-left: 12px;
+}
+
+.cart-card-image {
+  width: 100px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 8px;
+  margin-left: 10px;
 }

@@ -148,18 +148,51 @@ function App() {
   const [filteredItems, setFilteredItems] = useState(items);
   const [alliance, setAlliance] = useState("All");
   const [mincpp, setMincpp] = useState(0.9);
+  const [sortCondition, setSortCondition] = useState("alpha");
+  const [cartItems, setCartItems] = useState([]);
+  const [update, setUpdate] = useState(true);
 
   useEffect(() => {
-    if (alliance.match(/^All$/)) {
-      const filtered = items.filter((item) => item.value >= mincpp);
-      setFilteredItems(filtered);
+    var filtered = items;
+
+    if (sortCondition.match(/^cppMax$/)) {
+      filtered = filtered.sort((a, b) => (a.value < b.value ? 1 : -1));
+    } else if (sortCondition.match(/^cppMin$/)) {
+      filtered = filtered.sort((a, b) => (a.value > b.value ? 1 : -1));
     } else {
-      const filtered = items.filter(
+      filtered = filtered.sort((a, b) => (a.name > b.name ? 1 : -1));
+    }
+
+    if (alliance.match(/^All$/)) {
+      filtered = items.filter((item) => item.value >= mincpp);
+    } else {
+      filtered = items.filter(
         (item) => item.value >= mincpp && item.alliance.match(alliance)
       );
-      setFilteredItems(filtered);
     }
-  }, [alliance, mincpp]);
+    setFilteredItems(filtered);
+  }, [alliance, mincpp, sortCondition]);
+
+  const handleCartAdd = (name) => {
+    console.log(name);
+    var found = false;
+    for (const item of cartItems) {
+      if (item.name === name) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      cartItems.push(
+        items.find((item) => {
+          return item.name === name;
+        })
+      );
+    }
+    console.log(cartItems);
+    setUpdate(!update);
+  };
 
   // useEffect(() => {
   //   const filtered = items.filter(
@@ -178,9 +211,38 @@ function App() {
             <p className="card-text">
               {item.alliance} &nbsp;&nbsp;&nbsp; {item.value}&#162;/pp
             </p>
-            <i className="fa heart" style={{ fontSize: "24px" }}>
+            <div
+              className="fa heart"
+              style={{ fontSize: "24px" }}
+              onClick={() => handleCartAdd(item.name)}
+            >
               &#xf08a;
-            </i>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function CartCards() {
+    return (
+      <div className="cart-card-container" id={update}>
+        {cartItems.map((item) => (
+          <div key={item.name} className="cart-card">
+            <img
+              src={item.image}
+              alt={item.name}
+              className="cart-card-image"
+            ></img>
+            <div>
+              <p className="cart-card-title">{item.name}</p>
+              <p className="cart-card-text">
+                {item.alliance} &nbsp;&nbsp;&nbsp; {item.value}&#162;/pp
+              </p>
+            </div>
+            <div className="fa heart" style={{ fontSize: "24px" }}>
+              &#xf08a;
+            </div>
           </div>
         ))}
       </div>
@@ -189,44 +251,73 @@ function App() {
 
   return (
     <div className="App">
-      <Select
-        className="select"
-        defaultValue={"All"}
-        onChange={(e) => {
-          setAlliance(e.target.value);
-        }}
-      >
-        <MenuItem className="menuitem" value={"All"}>
-          All Alliances
-        </MenuItem>
-        <MenuItem className="menuitem" value={"SkyTeam"}>
-          SkyTeam
-        </MenuItem>
-        <MenuItem className="menuitem" value={"Star Alliance"}>
-          Star Alliance
-        </MenuItem>
-        <MenuItem className="menuitem" value={"Oneworld"}>
-          Oneworld
-        </MenuItem>
-        <MenuItem className="menuitem" value={"Independent"}>
-          Independent
-        </MenuItem>
-      </Select>
-      <div className="slider-container">
-        <Slider
-          className="slider"
-          defaultValue={0.9}
-          aria-label="slider"
-          valueLabelDisplay="auto"
-          step={0.1}
-          min={0.9}
-          max={1.7}
-          onChange={(e) => {
-            setMincpp(e.target.value);
-          }}
-        />
+      <div className="global-container">
+        <div>
+          <div className="fs-container">
+            <Select
+              className="select"
+              defaultValue={"All"}
+              onChange={(e) => {
+                setAlliance(e.target.value);
+              }}
+            >
+              <MenuItem className="menuitem" value={"All"}>
+                All Alliances
+              </MenuItem>
+              <MenuItem className="menuitem" value={"SkyTeam"}>
+                SkyTeam
+              </MenuItem>
+              <MenuItem className="menuitem" value={"Star Alliance"}>
+                Star Alliance
+              </MenuItem>
+              <MenuItem className="menuitem" value={"Oneworld"}>
+                Oneworld
+              </MenuItem>
+              <MenuItem className="menuitem" value={"Independent"}>
+                Independent
+              </MenuItem>
+            </Select>
+
+            <Select
+              className="select"
+              defaultValue={"alpha"}
+              onChange={(e) => {
+                setSortCondition(e.target.value);
+              }}
+            >
+              <MenuItem className="menuitem" value={"alpha"}>
+                Alphabetical
+              </MenuItem>
+              <MenuItem className="menuitem" value={"cppMax"}>
+                Point Value &darr;
+              </MenuItem>
+              <MenuItem className="menuitem" value={"cppMin"}>
+                Point Value &uarr;
+              </MenuItem>
+            </Select>
+            <div className="slider-container">
+              <div className="slider-text">Minimum Value</div>
+
+              <Slider
+                className="slider"
+                defaultValue={0.9}
+                aria-label="slider"
+                valueLabelDisplay="auto"
+                step={0.1}
+                min={0.9}
+                max={1.7}
+                onChange={(e) => {
+                  setMincpp(e.target.value);
+                }}
+              />
+            </div>
+          </div>
+          <Cards></Cards>
+        </div>
+        <div className="cart">
+          <CartCards></CartCards>
+        </div>
       </div>
-      <Cards></Cards>
     </div>
   );
 }
