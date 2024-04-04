@@ -1,7 +1,10 @@
 import logo from "./logo.svg";
 import "./App.css";
 import { useEffect, useState } from "react";
-import { Select, MenuItem, Slider } from "@mui/material";
+import { Select, MenuItem, Slider, TextField } from "@mui/material";
+import { outlinedInputClasses } from "@mui/material/OutlinedInput";
+import Box from "@mui/material/Box";
+import { createTheme, ThemeProvider, useTheme } from "@mui/material/styles";
 
 const items = [
   {
@@ -151,6 +154,8 @@ function App() {
   const [sortCondition, setSortCondition] = useState("alpha");
   const [cartItems, setCartItems] = useState([]);
   const [update, setUpdate] = useState(true);
+  const [sliderReset, setSliderReset] = useState(true);
+  const [prices, setPrices] = useState([]);
 
   useEffect(() => {
     var filtered = items;
@@ -189,17 +194,50 @@ function App() {
           return item.name === name;
         })
       );
+      prices.push(0);
     }
-    console.log(cartItems);
+    // console.log(cartItems);
+    // console.log(document.getElementById(name.concat("-", "heart")).innerHTML);
+    // // document.getElementById(name.concat("-", "heart")).innerHTML = "&#xf004";
+    // document.getElementById(name.concat("-", "heart")).innerHTML = "hi";
+    // console.log(document.getElementById(name.concat("-", "heart")).innerHTML);
+
     setUpdate(!update);
   };
 
-  // useEffect(() => {
-  //   const filtered = items.filter(
-  //     (item) => item.value >= mincpp && item.alliance.match(alliance)
-  //   );
-  //   setFilteredItems(filtered);
-  // }, [mincpp]);
+  const handleCartRemove = (name) => {
+    for (const item of cartItems) {
+      if (item.name === name) {
+        cartItems.splice(cartItems.indexOf(item), 1);
+        prices.splice(cartItems.indexOf(item), 1);
+        break;
+      }
+    }
+    setUpdate(!update);
+  };
+
+  const handleFSReset = () => {
+    setAlliance("All");
+    setSortCondition("alpha");
+    setMincpp(0.9);
+    setSliderReset(!sliderReset);
+  };
+
+  const handlePriceUpdate = (price, toUp_item) => {
+    for (const item of cartItems) {
+      if (item.name === toUp_item.name) {
+        const newPrices = prices.map((c, i) => {
+          if (i === cartItems.indexOf(item)) {
+            return price * toUp_item.value;
+          } else {
+            return c;
+          }
+        });
+        setPrices(newPrices);
+        break;
+      }
+    }
+  };
 
   function Cards() {
     return (
@@ -212,6 +250,7 @@ function App() {
               {item.alliance} &nbsp;&nbsp;&nbsp; {item.value}&#162;/pp
             </p>
             <div
+              id={item.name.concat("-", "heart")}
               className="fa heart"
               style={{ fontSize: "24px" }}
               onClick={() => handleCartAdd(item.name)}
@@ -240,8 +279,20 @@ function App() {
                 {item.alliance} &nbsp;&nbsp;&nbsp; {item.value}&#162;/pp
               </p>
             </div>
-            <div className="fa heart" style={{ fontSize: "24px" }}>
-              &#xf08a;
+            <input
+              id={item.name.concat("-", "input")}
+              className="number-field"
+              placeholder="# points"
+              defaultValue={prices[cartItems.indexOf(item)] / item.value}
+              type="number"
+              onBlur={(e) => handlePriceUpdate(e.target.value, item)}
+            />
+            <div
+              className="fa trash"
+              style={{ fontSize: "24px" }}
+              onClick={() => handleCartRemove(item.name)}
+            >
+              &#xf014;
             </div>
           </div>
         ))}
@@ -257,6 +308,7 @@ function App() {
             <Select
               className="select"
               defaultValue={"All"}
+              value={alliance}
               onChange={(e) => {
                 setAlliance(e.target.value);
               }}
@@ -281,6 +333,7 @@ function App() {
             <Select
               className="select"
               defaultValue={"alpha"}
+              value={sortCondition}
               onChange={(e) => {
                 setSortCondition(e.target.value);
               }}
@@ -299,6 +352,7 @@ function App() {
               <div className="slider-text">Minimum Value</div>
 
               <Slider
+                key={sliderReset}
                 className="slider"
                 defaultValue={0.9}
                 aria-label="slider"
@@ -306,16 +360,29 @@ function App() {
                 step={0.1}
                 min={0.9}
                 max={1.7}
+                value={mincpp}
                 onChange={(e) => {
                   setMincpp(e.target.value);
                 }}
               />
             </div>
+            <button className="reset" onClick={() => handleFSReset()}>
+              Reset Filter
+            </button>
           </div>
           <Cards></Cards>
         </div>
         <div className="cart">
+          <div className="cart-title">My Loyalty Programs</div>
           <CartCards></CartCards>
+          <div className="cart-total">
+            Programs: {cartItems.length}
+            <br />
+            Total Value: $
+            {(
+              prices.reduce((partialSum, a) => partialSum + a, 0) / 100
+            ).toFixed(2)}
+          </div>
         </div>
       </div>
     </div>
